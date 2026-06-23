@@ -3,32 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <title>Rave Radar Brasil</title>
-    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css' rel='stylesheet' />
-    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-    <header>
-        <h1>RAVE RADAR BR</h1>
-        <p>Acompanhe as melhores festas eletrônicas do Brasil</p>
-    </header>
+    <h1>Rave Radar Brasil</h1>
+    <div id="calendar">Carregando eventos...</div>
 
-    <div id="calendar-container">
-        <div id="calendar"></div>
-
-<script>
-  fetch('data/eventos.json')
-    .then(response => response.json())
-    .then(data => {
-      const container = document.getElementById('calendar');
-      data.forEach(evento => {
-        container.innerHTML += `<div><h3>${evento.title}</h3><a href="${evento.url}">Ver evento</a></div>`;
-      });
-    });
-</script>
-    </div>
-
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
-    <script src="assets/js/script.js"></script>
+    <script>
+        fetch('data/eventos.json')
+            .then(response => {
+                if (!response.ok) throw new Error("Erro ao carregar JSON");
+                return response.json();
+            })
+            .then(data => {
+                const container = document.getElementById('calendar');
+                container.innerHTML = ''; // Limpa o "Carregando..."
+                
+                if (data.length === 0) {
+                    container.innerHTML = '<p>Nenhum evento encontrado no momento.</p>';
+                    return;
+                }
+                
+                data.forEach(evento => {
+                    container.innerHTML += `
+                        <div style="border: 1px solid #ccc; margin: 10px; padding: 10px;">
+                            <h3>${evento.title}</h3>
+                            <p>Data: ${evento.start}</p>
+                            <a href="${evento.url}" target="_blank">Ver evento no Sympla</a>
+                        </div>`;
+                });
+            })
+            .catch(error => {
+                document.getElementById('calendar').innerHTML = '<p style="color: red;">Erro ao exibir eventos: ' + error.message + '</p>';
+                console.error(error);
+            });
+    </script>
 </body>
 </html>
-
