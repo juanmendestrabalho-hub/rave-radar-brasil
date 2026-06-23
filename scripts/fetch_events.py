@@ -1,30 +1,42 @@
 import json
 from playwright.sync_api import sync_playwright
 
-def scrape_sympla():
-    # Exemplo de como você começaria a estruturar a coleta
-    events = []
+def get_events():
+    # Iniciando o navegador invisível
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
         
-        # URL de busca de eventos eletrônicos (exemplo)
-        page.goto("https://www.sympla.com.br/eventos/sao-paulo-sp/musica-eletronica")
+        # Vamos usar um site de busca de eventos como alvo inicial 
+        # (Substitua esta URL pela página de eventos que você deseja monitorar)
+        url = "https://www.sympla.com.br/eventos/sao-paulo-sp/musica-eletronica"
+        print(f"Conectando em: {url}")
         
-        # Aqui você selecionaria os elementos que contêm os dados dos eventos
-        # NOTA: Estes seletores precisam ser ajustados conforme o HTML real do site
-        items = page.query_selector_all(".sympla-card") 
-        
-        for item in items:
-            title = item.query_selector(".card-title").inner_text()
-            # ... extrair data e link da mesma forma
-            events.append({"title": title, "start": "2026-07-01", "url": "#"})
+        try:
+            page.goto(url, wait_until="networkidle")
+            
+            # Aqui simulamos a extração de dados
+            # NOTA: Você precisará identificar as classes CSS reais no seu navegador
+            # Exemplo genérico:
+            eventos = page.eval_on_selector_all(".sympla-card", """
+                elements => elements.map(e => ({
+                    title: e.querySelector('.title') ? e.querySelector('.title').innerText : 'Sem título',
+                    start: '2026-07-30', 
+                    url: e.querySelector('a') ? e.querySelector('a').href : '#'
+                }))
+            """)
+            
+            # Salvando os dados no arquivo JSON
+            with open('data/eventos.json', 'w', encoding='utf-8') as f:
+                json.dump(eventos, f, indent=4, ensure_ascii=False)
+            
+            print(f"Sucesso! {len(eventos)} eventos encontrados.")
+            
+        except Exception as e:
+            print(f"Erro ao buscar eventos: {e}")
             
         browser.close()
-    return events
 
-# Salvar no arquivo que o site lê
-all_events = scrape_sympla()
-with open('data/eventos.json', 'w', encoding='utf-8') as f:
-    json.dump(all_events, f, indent=4)
-  
+if __name__ == "__main__":
+    get_events()
+    
