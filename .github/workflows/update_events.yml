@@ -1,0 +1,5 @@
+      - name: Instalar Playwright
+        run: |
+          pip install playwright
+          playwright install chromium
+          
