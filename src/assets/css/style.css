@@ -1,1 +1,32 @@
+body {
+    background-color: #0a0a0a;
+    color: #fff;
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+h1 {
+    color: #00ffcc; /* Verde Neon */
+    text-shadow: 0 0 10px #00ffcc;
+    letter-spacing: 5px;
+}
+
+#calendar-container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #1a1a1a;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #333;
+}
+
+/* Ajustes para o calendário ficar escuro */
+.fc .fc-toolbar-title { color: #ff00ff; } /* Rosa Neon */
+.fc-event { border: none !important; }
 
