@@ -13,7 +13,18 @@
     </header>
 
     <div id="calendar-container">
-        <div id='calendar'></div>
+        <div id="calendar"></div>
+
+<script>
+  fetch('data/eventos.json')
+    .then(response => response.json())
+    .then(data => {
+      const container = document.getElementById('calendar');
+      data.forEach(evento => {
+        container.innerHTML += `<div><h3>${evento.title}</h3><a href="${evento.url}">Ver evento</a></div>`;
+      });
+    });
+</script>
     </div>
 
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
