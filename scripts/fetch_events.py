@@ -1,38 +1,26 @@
 import json
 import requests
-from bs4 import BeautifulSoup
 
 def get_events():
-    url = "https://www.sympla.com.br/eventos/sao-paulo-sp/musica-eletronica"
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
-    }
+    # URL de busca do Sympla (versão mobile/API que é mais aberta)
+    url = "https://www.sympla.com.br/api/v4/events?city=Sao%20Paulo&categories=musica-eletronica"
+    headers = {"User-Agent": "Mozilla/5.0"}
     
     try:
         response = requests.get(url, headers=headers)
-        soup = BeautifulSoup(response.text, 'html.parser')
+        data = response.json()
         
-        # O Sympla guarda os dados em uma tag script chamada __NEXT_DATA__
-        script_tag = soup.find('script', id='__NEXT_DATA__')
-        
-        if script_tag:
-            data = json.loads(script_tag.string)
-            # Navegando na estrutura JSON que o site usa
-            eventos_raw = data['props']['pageProps']['events']
+        # O Sympla retorna uma lista em 'data'
+        eventos = []
+        for e in data.get('data', []):
+            eventos.append({
+                "title": e.get('name'),
+                "start": e.get('start_date'),
+                "url": e.get('url')
+            })
             
-            eventos = []
-            for e in eventos_raw:
-                eventos.append({
-                    "title": e.get('name'),
-                    "start": e.get('startDate'),
-                    "url": f"https://www.sympla.com.br/evento/{e.get('id')}"
-                })
-            
-            with open('data/eventos.json', 'w', encoding='utf-8') as f:
-                json.dump(eventos, f, indent=4, ensure_ascii=False)
-            print(f"Sucesso! {len(eventos)} eventos encontrados.")
-        else:
-            print("Não foi possível encontrar a tag de dados.")
+        with open('data/eventos.json', 'w', encoding='utf-8') as f:
+            json.dump(eventos, f, indent=4, ensure_ascii=False)
             
     except Exception as e:
         print(f"Erro: {e}")
