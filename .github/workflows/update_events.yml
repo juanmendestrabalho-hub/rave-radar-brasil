@@ -1,5 +1,36 @@
-      - name: Instalar Playwright
+name: Atualizar Raves Automaticamente
+
+on:
+  schedule:
+    - cron: '0 3 * * *' # Roda às 03:00 UTC diariamente
+  workflow_dispatch:    # Permite que você rode manualmente pelo botão no site do GitHub
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Necessário para o robô conseguir salvar o arquivo JSON
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Instalar dependências
         run: |
-          pip install playwright
+          pip install requests beautifulsoup4 playwright
           playwright install chromium
+
+      - name: Rodar script de coleta
+        run: python scripts/fetch_events.py
+
+      - name: Commit e Push das alterações
+        run: |
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git add data/eventos.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update: Novos eventos encontrados" && git push)
           
